@@ -21,7 +21,7 @@ FROM Customers WHERE name = 'Sam smith'
 --This query gives us a nice comparison about the rows that were affected
 SELECT * FROM Products WHERE quantity < 100
 GO
-EXEC restockItems
+EXEC restock_items
 GO
 SELECT * FROM Products
 GO
@@ -29,12 +29,12 @@ GO
 
 --Tests for triggers
 --Here we can see that the total amount on the last row was updated right after insertion
-INSERT INTO Orders (customer_id, order_date, payment_method_id)
-VALUES (9, '2022-01-19', 1);
+INSERT INTO Customers (name, email, date_joined) VALUES ('Karen Williams', 'karen.williams@example.com', '2022-01-20');
+GO
+INSERT INTO Orders (customer_id, order_date, payment_method_id) VALUES (5, '2022-01-20', 4);
 GO
 SELECT * FROM Orders
 GO
-INSERT INTO OrderItems (order_id, product_id, quantity)
-VALUES (9, 11, 1);
+INSERT INTO OrderItems (order_id, product_id, quantity) VALUES (23, 13, 1);
 GO
 SELECT * FROM Orders
