@@ -92,26 +92,30 @@ When a table has a large number of records, indexes can be particularly useful f
 To generate a large number of test records in the "Customers" table of the [KioskStore](./src/M153_Projekt_Create.sql) database, you could use the following T-SQL script:
 
 ```
---Inserting 50,000 records into the Customers table
-INSERT INTO Customers (name, email, date_joined)
-SELECT 'Customer' + CAST(ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS VARCHAR), 'customer' 
-                  + CAST(ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS VARCHAR) + '@test.com', 
-                  GETDATE()
+DECLARE @counter INT = 1
 
+-- value 100000 can also be modified 
+WHILE (@counter <= 100000)
+BEGIN
+    INSERT INTO Customers (name, email, date_joined)
+    VALUES ('Customer' + CAST(@counter AS VARCHAR),
+				'customer' + CAST(@counter AS VARCHAR) + '@test.com',
+				GETDATE())
 
-FROM master..spt_values 
---Might need changes depending on the environment
-
-WHERE type = 'p' AND number <= 50000
+    SET @counter = @counter + 1
+END
 ```
 
 To test the difference in query performance with a large number of records, you can use the `DMV`, as mentioned previously, to measure the duration of the query with and without an index. Here is an example of how you could compare the performance of a query that retrieves all the customers with the name "Will Smith" with an index and without an index:
 
 ```
+--step 01 --
 --Creating an index on the name column
 CREATE INDEX idx_customers_name ON Customers (name)
 
+--step 02 --
 --Measure the duration of the query with an index
+
 DECLARE @query NVARCHAR(MAX) = N'SELECT * FROM Customers WHERE name = ''Will Smith'''
 DECLARE @start_time DATETIME = GETDATE()
 
@@ -120,19 +124,49 @@ EXEC (@query)
 DECLARE @duration FLOAT = (SELECT (DATEDIFF(millisecond, @start_time, GETDATE()))/1000.0)
 PRINT 'Duration of the query with an index: ' + CONVERT(NVARCHAR, @duration) + ' seconds'
 
---drop the index
-DROP INDEX idx_customers_name ON Customers
-
---Measure the duration of the query without an index
-DECLARE @start_time DATETIME = GETDATE()
-
 EXEC (@query)
 
-DECLARE @duration FLOAT = (SELECT (DATEDIFF(millisecond, @start_time, GETDATE()))/1000.0)
-PRINT 'Duration of the query without an index: ' + CONVERT(NVARCHAR, @duration) + ' seconds'
+DECLARE @duration2 FLOAT = (SELECT (DATEDIFF(millisecond, @start_time, GETDATE()))/1000.0)
+PRINT 'Duration of the query without an index: ' + CONVERT(NVARCHAR, @duration2) + ' seconds'
+
+--step 03 --
+SELECT * FROM Customers
 ```
 
-To test the difference in query performance with a large number of records using `SET STATISTICS TIME` you could use the following code:
+### Result
+
+The code was tested inside an VM, running `Windows 10 Pro Education` edition with the configuration from below. The processor of the real machine is a [Intel® Xeon® E-2146G Processor](https://www.intel.com/content/www/us/en/products/sku/134866/intel-xeon-e2146g-processor-12m-cache-up-to-4-50-ghz/specifications.html).
+
+<img src="./github/specs.png" margin-left="15px">
+
+
+The test was performed on a database containing 21 and 100,021 entries, and the goal was to measure the performance difference between a query with an index and without an index.
+
+The results show that when the table had 21 entries, there was no significant difference in performance between the query with an index and without an index, with both queries completing in 0 seconds.
+
+```
+(0 rows affected)
+Duration of the query with an index: 0 seconds
+
+(0 rows affected)
+Duration of the query without an index: 0 seconds
+```
+
+However, when the table had 100,000 entries, the query with an index completed in 0.013 seconds, while the query without an index completed in 0.023 seconds. This indicates that using an index on the "name" column of the "Customers" table improves the performance of the query by about 47% when querying large amount of data.
+
+```
+(0 rows affected)
+Duration of the query with an index: 0.013 seconds
+
+(0 rows affected)
+Duration of the query without an index: 0.023 seconds
+```
+
+It's important to note that the actual performance difference will depend on many factors, including the size of the table, the complexity of the query, and the hardware and software configuration of the server/computer.
+
+> Additionally, it's also important to consider the maintenance cost of the index, as maintaining an index can be resource-intensive and can increase the time it takes to insert, update, and delete data.
+
+To test the difference in query performance with a large number of records using `SET STATISTICS TIME` you could also use the following code:
 
 ```
 --Creating an index on the name column
@@ -152,7 +186,6 @@ SELECT * FROM Customers WHERE name = 'Will Smith'
 SET STATISTICS TIME OFF
 ```
 
-> It is important to note that the actual performance difference between a query with an index and without an index will depend on many factors, including the size of the table, the complexity of the query, and the hardware and software configuration of the server. 
 
 ## What is the use of an index when there are many tables or relationships between tables?
 

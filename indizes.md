@@ -32,7 +32,6 @@ can be measured and stored for further processing.
 - What is the use of an index with many records?
 Create an example for creating a large number of test data sets. Then use an example to test
 example, what the time difference is between a query with many records and one with few records, using an index or no index.
-using an index or no index.
 - What is the use of an index when there are many tables or relationships between tables?
 create examples of the use of time measurement with relationships between several tables and
 many records.
