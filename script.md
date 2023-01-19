@@ -113,7 +113,6 @@ To test the difference in query performance with a large number of records, you 
 --Creating an index on the name column
 CREATE INDEX idx_customers_name ON Customers (name)
 
---step 02 --
 --Measure the duration of the query with an index
 
 DECLARE @query NVARCHAR(MAX) = N'SELECT * FROM Customers WHERE name = ''Will Smith'''
@@ -124,12 +123,15 @@ EXEC (@query)
 DECLARE @duration FLOAT = (SELECT (DATEDIFF(millisecond, @start_time, GETDATE()))/1000.0)
 PRINT 'Duration of the query with an index: ' + CONVERT(NVARCHAR, @duration) + ' seconds'
 
+--drop the index
+DROP INDEX idx_customers_name ON Customers
+
 EXEC (@query)
 
 DECLARE @duration2 FLOAT = (SELECT (DATEDIFF(millisecond, @start_time, GETDATE()))/1000.0)
 PRINT 'Duration of the query without an index: ' + CONVERT(NVARCHAR, @duration2) + ' seconds'
 
---step 03 --
+--step 02 --
 SELECT * FROM Customers
 ```
 
