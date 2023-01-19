@@ -21,7 +21,7 @@ FROM Customers WHERE name = 'Sam smith'
 --This query gives us a nice comparison about the rows that were affected
 SELECT * FROM Products WHERE quantity < 100
 GO
-EXEC restockItems
+EXEC restock_items
 GO
 SELECT * FROM Products
 GO
