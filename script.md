@@ -154,7 +154,9 @@ Duration of the query with an index: 0 seconds
 Duration of the query without an index: 0 seconds
 ```
 
-However, when the table had 100,000 entries, the query with an index completed in 0.013 seconds, while the query without an index completed in 0.023 seconds. This indicates that using an index on the "name" column of the "Customers" table improves the performance of the query by about 47% when querying large amount of data.
+However, when the table had 100,000 entries, the query with an index completed in 0.013 seconds, while the query without an index completed in 0.023 seconds. This indicates that using an index on the "name" column of the "Customers" table improves the performance of the query by about 47% when querying large amount of data. 
+
+> So, try to use such indexes in your next projects too ;)
 
 ```
 (0 rows affected)
@@ -163,6 +165,7 @@ Duration of the query with an index: 0.013 seconds
 (0 rows affected)
 Duration of the query without an index: 0.023 seconds
 ```
+
 
 It's important to note that the actual performance difference will depend on many factors, including the size of the table, the complexity of the query, and the hardware and software configuration of the server/computer.
 
